@@ -65,7 +65,7 @@ class DatabaseStep
                     ->hidden(fn (Get $get) => $get('env_database.DB_CONNECTION') === 'sqlite'),
                 TextInput::make('env_database.DB_PORT')
                     ->label('Database Port')
-                    ->placeholder(fn (Get $get) => DatabaseDriver::from($get('env_database.DB_CONNECTION'))->getDefaultOption('port', '3306'))
+                    ->placeholder(fn (Get $get) => DatabaseDriver::from($get('env_database.DB_CONNECTION'))->getDefaultOption('port'))
                     ->hintIcon('tabler-question-mark')
                     ->hintIconTooltip('The port of your database.')
                     ->numeric()
@@ -124,6 +124,7 @@ class DatabaseStep
 
             return false;
         }
+
         return true;
     }
 }

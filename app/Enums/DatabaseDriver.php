@@ -11,7 +11,7 @@ enum DatabaseDriver: string
 
     public function getFriendlyName(): string
     {
-        return match($this) {
+        return match ($this) {
             self::Mariadb => 'MariaDB',
             self::Mysql => 'MySQL',
             self::Postgresql => 'PostgreSQL',
@@ -21,7 +21,7 @@ enum DatabaseDriver: string
 
     public function getJDBCDriver(): string
     {
-        return match($this) {
+        return match ($this) {
             self::Mariadb, self::Mysql => 'mysql',
             self::Postgresql => 'postgresql',
             self::Sqlite => 'sqlite',
@@ -30,7 +30,7 @@ enum DatabaseDriver: string
 
     public function isRemote(): bool
     {
-        return match($this) {
+        return match ($this) {
             self::Mariadb, self::Mysql, self::Postgresql => true,
             self::Sqlite => false,
         };
@@ -38,7 +38,7 @@ enum DatabaseDriver: string
 
     public function getDefaultOption(string $key, bool $useEnv = false): mixed
     {
-        $defaultValue = (match($this) {
+        $defaultValue = (match ($this) {
             self::Mariadb => [
                 'driver' => 'mariadb',
                 'url' => '',
@@ -97,6 +97,7 @@ enum DatabaseDriver: string
                 'foreign_key_constraints' => true,
             ],
         })[$key] ?? null;
+
         return $useEnv ? config()->get(sprintf('database.connections.%s.%s', $this->value, $key), $defaultValue) : $defaultValue;
     }
 
@@ -104,9 +105,10 @@ enum DatabaseDriver: string
      * Returns a string to string mapping of internal driver names to friendly names.
      * The recommended driver, if specified, will have (recommended) added to its name.
      */
-    public static function getFriendlyNameArray(self|null $recommended = null): array
+    public static function getFriendlyNameArray(?self $recommended = null): array
     {
         $values = array_map(fn (self $value) => sprintf($value === $recommended ? '%s (recommended)' : '%s', $value->getFriendlyName()), self::cases());
+
         return array_combine(array_column(self::cases(), 'value'), $values);
     }
 
@@ -115,10 +117,11 @@ enum DatabaseDriver: string
      * The recommended driver, if specified, will have (recommended) added to its name.
      * Only returns databases connected to remotely. Not SQLite.
      */
-    public static function getFriendlyNameArrayRemote(self|null $recommended = null): array
+    public static function getFriendlyNameArrayRemote(?self $recommended = null): array
     {
         $remoteDrivers = array_filter(self::cases(), fn (self $value) => $value->isRemote());
         $values = array_map(fn (self $value) => sprintf($value === $recommended ? '%s (recommended)' : '%s', $value->getFriendlyName()), $remoteDrivers);
+
         return array_combine(array_column($remoteDrivers, 'value'), $values);
     }
 }

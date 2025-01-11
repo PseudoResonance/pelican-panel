@@ -141,6 +141,7 @@ class Database extends Model
         return match ($this->host->driver) {
             DatabaseDriver::Mysql, DatabaseDriver::Mariadb => $this->run(sprintf('CREATE DATABASE IF NOT EXISTS `%s`', $database)),
             DatabaseDriver::Postgresql => $this->run(sprintf('CREATE DATABASE "%s"', $database)),
+            default => throw new BadMethodCallException(sprintf('Not implemented for driver %s', $this->host->driver->value)),
         };
     }
 
@@ -174,10 +175,8 @@ class Database extends Model
 
                 return $this->getDatabaseConnection($database)->statement(sprintf($command, ...$args));
             default:
-                throw new BadMethodCallException(sprintf('Not implemented for driver %s', $this->host->driver));
+                throw new BadMethodCallException(sprintf('Not implemented for driver %s', $this->host->driver->value));
         }
-
-        return false;
     }
 
     /**
@@ -188,7 +187,7 @@ class Database extends Model
     {
         return match ($this->host->driver) {
             DatabaseDriver::Postgresql => $this->getDatabaseConnection($database)->statement(sprintf('ALTER USER "%s" WITH PASSWORD \'%s\'', $username, $password)),
-            default => throw new BadMethodCallException(sprintf('Not implemented for driver %s', $this->host->driver)),
+            default => throw new BadMethodCallException(sprintf('Not implemented for driver %s', $this->host->driver->value)),
         };
     }
 
@@ -214,7 +213,7 @@ class Database extends Model
                     && $conn->statement('DROP SCHEMA public')
                     && $conn->statement(sprintf('CREATE SCHEMA AUTHORIZATION "%s"', $username));
             default:
-                throw new BadMethodCallException(sprintf('Not implemented for driver %s', $this->host->driver));
+                throw new BadMethodCallException(sprintf('Not implemented for driver %s', $this->host->driver->value));
         }
     }
 
@@ -225,7 +224,8 @@ class Database extends Model
     {
         return match ($this->host->driver) {
             DatabaseDriver::Mysql, DatabaseDriver::Mariadb => $this->run('FLUSH PRIVILEGES'),
-            default => true,
+            DatabaseDriver::Sqlite, DatabaseDriver::Postgresql => true,
+            default => throw new BadMethodCallException(sprintf('Not implemented for driver %s', $this->host->driver->value)),
         };
     }
 
@@ -238,6 +238,7 @@ class Database extends Model
             DatabaseDriver::Mysql, DatabaseDriver::Mariadb => $this->run(sprintf('DROP DATABASE IF EXISTS `%s`', $database)),
             DatabaseDriver::Postgresql => $this->run(sprintf('SELECT pg_terminate_backend(pg_stat_activity.pid) FROM pg_stat_activity WHERE pg_stat_activity.datname = \'%s\' AND pid <> pg_backend_pid()', $database))
                 && $this->run(sprintf('DROP DATABASE IF EXISTS "%s"', $database)),
+            default => throw new BadMethodCallException(sprintf('Not implemented for driver %s', $this->host->driver->value)),
         };
     }
 
@@ -249,6 +250,7 @@ class Database extends Model
         return match ($this->host->driver) {
             DatabaseDriver::Mysql, DatabaseDriver::Mariadb => $this->run(sprintf('DROP USER IF EXISTS `%s`@`%s`', $username, $remote)),
             DatabaseDriver::Postgresql => $this->run(sprintf('DROP USER IF EXISTS "%s"', $username)),
+            default => throw new BadMethodCallException(sprintf('Not implemented for driver %s', $this->host->driver->value)),
         };
     }
 }

@@ -25,6 +25,9 @@ class EggController extends ApplicationApiController
      */
     public function view(GetEggRequest $request, Egg $egg): array
     {
+        $request->validate([
+            'id' => 'required|integer', // Validate ID before making query as Postgres doesn't like a nil integer.
+        ]);
         return $this->fractal->item($egg)
             ->transformWith($this->getTransformer(EggTransformer::class))
             ->toArray();
