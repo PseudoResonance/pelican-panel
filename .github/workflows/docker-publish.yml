@@ -67,5 +67,5 @@ jobs:
             VERSION=dev-${{ steps.build_info.outputs.short_sha }}
           labels: ${{ steps.docker_meta.outputs.labels }}
           tags: ${{ steps.docker_meta.outputs.tags }}
-          cache-from: type=gha,ref=${{ env.IMAGE_NAME }}:${{ matrix.os }}
-          cache-to: type=gha,ref=${{ env.IMAGE_NAME }}:${{ matrix.os }},mode=max
+          cache-from: type=gha,scope=${{ matrix.os }}
+          cache-to: type=gha,scope=${{ matrix.os }},mode=max
