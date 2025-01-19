@@ -55,7 +55,6 @@ jobs:
           echo "version_tag=${GITHUB_REF/refs\/tags\/v/}" >> $GITHUB_OUTPUT
           echo "short_sha=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
 
-
       - name: Build and Push (main)
         uses: docker/build-push-action@v6
         if: "github.event_name == 'push'"
@@ -68,5 +67,5 @@ jobs:
             VERSION=dev-${{ steps.build_info.outputs.short_sha }}
           labels: ${{ steps.docker_meta.outputs.labels }}
           tags: ${{ steps.docker_meta.outputs.tags }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,ref=${{ env.IMAGE_NAME }}:${{ matrix.os }}
+          cache-to: type=gha,ref=${{ env.IMAGE_NAME }}:${{ matrix.os }},mode=max
