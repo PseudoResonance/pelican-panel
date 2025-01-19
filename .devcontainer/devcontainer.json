@@ -1,0 +1,51 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/php
+{
+	"name": "Pelican Panel",
+	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
+	"build": {
+		// Path is relative to the devcontainer.json file.
+		"dockerfile": "Dockerfile",
+		"args": {
+			"REMOTE_USER": "${localEnv:USER}",
+			"REMOTE_UID": "${localEnv:REMOTE_UID:1000}",
+			"REMOTE_GID": "${localEnv:REMOTE_GID:1000}"
+		}
+	},
+	"remoteUser": "${localEnv:USER}",
+	// Features to add to the dev container. More info: https://containers.dev/features.
+	"features": {
+		"ghcr.io/cirolosapio/devcontainers-features/alpine-docker-outside-of-docker:0": {}
+	},
+	// Configure tool-specific properties.
+	// "customizations": {},
+	// Use 'forwardPorts' to make a list of ports inside the container available locally.
+	"forwardPorts": [
+		80,
+		443
+	],
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"ms-azuretools.vscode-docker",
+				"dbaeumer.vscode-eslint",
+				"bmewburn.vscode-intelephense-client",
+				"xdebug.php-debug",
+				"SanjulaGanepola.github-local-actions"
+			]
+		}
+	},
+	"containerEnv": {
+		"APP_URL": "http://localhost:80",
+		"ADMIN_EMAIL": "email@example.com",
+		"APP_DEBUG": "true",
+		"APP_ENV": "local"
+	},
+	"mounts": [
+		"source=/home/${localEnv:USER}/.config,target=/home/${localEnv:USER}/.config,type=bind"
+	],
+	"workspaceMount": "source=${localWorkspaceFolder},target=/var/www/html,type=bind",
+	"workspaceFolder": "/var/www/html",
+	// Use 'postCreateCommand' to run commands after the container is created.
+	"postCreateCommand": "./.devcontainer/init.sh"
+}
