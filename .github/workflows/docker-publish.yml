@@ -22,8 +22,6 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-24.04, ubuntu-24.04-arm]
-    # Always run against a tag, even if the commit into the tag has [docker skip] within the commit message.
-    if: "!contains(github.ref, 'main') || (!contains(github.event.head_commit.message, 'skip docker') && !contains(github.event.head_commit.message, 'docker skip'))"
 
     steps:
       - name: Code checkout
@@ -57,26 +55,13 @@ jobs:
           echo "version_tag=${GITHUB_REF/refs\/tags\/v/}" >> $GITHUB_OUTPUT
           echo "short_sha=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
 
-      - name: Build and Push (tag)
-        uses: docker/build-push-action@v6
-        if: "github.event_name == 'release' && github.event.action == 'published'"
-        with:
-          context: .
-          file: ./Dockerfile
-          push: true
-          platforms: ${{ matrix.os == 'ubuntu-24.04' && 'linux/amd64' || 'linux/arm64' }}
-          build-args: |
-            VERSION=${{ steps.build_info.outputs.version_tag }}
-          labels: ${{ steps.docker_meta.outputs.labels }}
-          tags: ${{ steps.docker_meta.outputs.tags }}
-
       - name: Build and Push (main)
         uses: docker/build-push-action@v6
-        if: "github.event_name == 'push' && contains(github.ref, 'main')"
+        if: "github.event_name == 'push'"
         with:
           context: .
           file: ./Dockerfile
-          push: ${{ github.event_name != 'pull_request' }}
+          push: false
           platforms: ${{ matrix.os == 'ubuntu-24.04' && 'linux/amd64' || 'linux/arm64' }}
           build-args: |
             VERSION=dev-${{ steps.build_info.outputs.short_sha }}
